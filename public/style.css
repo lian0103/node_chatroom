@@ -1,15 +1,15 @@
-.msgbox{
-    width: 100%;
-    max-width: 1200px;
-    margin: auto;
-    padding: 2rem 3rem;
-    box-sizing: border-box;
-    background-color: #ccc;
-    color: orangered;
-    height: calc(100vh - 120px);
-    overflow-y: scroll;
+.msgbox {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 1rem 1.2rem;
+  box-sizing: border-box;
+  background-color: #ccc;
+  color: orangered;
+  height: calc(100vh - 140px);
+  overflow-y: scroll;
 }
 
-h1{
-    color: orange;
+h1 {
+  color: orange;
 }
