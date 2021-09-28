@@ -1,5 +1,5 @@
-require("dotenv").config();
-console.log(process.env.mongo_uri);
+// require("dotenv").config();
+// console.log(process.env.mongo_uri);
 
 const path = require("path");
 const express = require("express");
@@ -22,7 +22,7 @@ app.get("*", (req, res) => {
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const port = process.env.PORT || 3001;
-const dbUri = process.env.mongo_uri;
+const dbUri = "mongodb+srv://lien0103:k1319900103@chatroom.f2mhj.mongodb.net/chatroom?retryWrites=true&w=majority";
 
 const User = require("./models/userModel");
 const Chat = require("./models/chatModel");
