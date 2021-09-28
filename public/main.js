@@ -7,7 +7,7 @@ const CHAT = {
   scrollToBottom:function(){
     let pHight = 25 * $(".msgbox p").length;
     let dHight = 45 * $(".msgbox div").length;
-    console.log(pHight,dHight)
+    // console.log(pHight,dHight)
     $('.msgbox').scrollTop(pHight + dHight);
   },
   updateMsg: function (data, type) {
@@ -47,7 +47,7 @@ const CHAT = {
   },
   login: function (mode) {
     let name = $("#userName").val();
-    console.log(mode);
+    // console.log(mode);
 
     if (!name) {
       $(".errMsg").text("請輸入名稱");
@@ -81,7 +81,7 @@ const CHAT = {
   },
   init: function () {
     this.socket.on("initInfo", function (data) {
-      console.log(data);
+      // console.log(data);
       alluser = [...Object.values(data.onlineUsers)];
       $(".onlineCount").text(alluser.length);
       data.historyMsg.forEach((obj) => {
@@ -94,7 +94,7 @@ const CHAT = {
     });
 
     this.socket.on("login", function (data) {
-      console.log("login", data);
+      // console.log("login", data);
       CHAT.updateMsg(data, "LOGIN");
       $("#loginBox").hide();
       CHAT.scrollToBottom();
@@ -104,7 +104,7 @@ const CHAT = {
       CHAT.scrollToBottom();
     });
     this.socket.on("message", function (data) {
-      console.log(data);
+      // console.log(data);
       CHAT.updateMsg(data, "GETMSG");
       CHAT.scrollToBottom();
     });
