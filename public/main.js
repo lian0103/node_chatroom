@@ -16,29 +16,32 @@ const CHAT = {
         break;
       }
       case "GETMSG": {
-        let temp = $(".msgbox").html();
         let isSelf = data.username === CHAT.username;
-        temp += isSelf
-          ? ` <div class="flex flex-col my-2 space-y-2 text-xs mx-2 order-1 items-end">
-                <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white text-lg">${data.msg}</span></div>
+        let time = moment(data.time).calendar(); 
+        let temp = isSelf
+          ? `<div class="flex flex-col my-2 space-y-2 text-xs mx-2 order-1 items-end">
+                <div>
+                  <span class="text-blue-400 text-sm relative top-2">${time}</span>
+                  <span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white text-lg">${data.msg}</span>
+                </div>
             </div>`
           : `
             <div class="flex flex-col my-2 space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
-                <div><span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600 text-lg"><span class="font-bold">${data.username}:</span>${data.msg}</span></div>
+                <div>
+                <span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600 text-lg"><span class="font-bold">${data.username}:</span>${data.msg}</span>
+                <span class="text-gray-400 text-sm relative top-2">${time}</span>
+                </div>
             </div>`;
 
-        $(".msgbox").html(temp);
+        $(".msgbox").append(temp);
         $("#msgInput").val("");
       }
     }
     $(".onlineCount").text(data.onlineCount);
   },
-  gerAlluser: function () {
-    this.socket.emit("getAlluser");
-  },
-  login: function () {
+  login: function (mode) {
     let name = $("#userName").val();
-    console.log(name);
+    console.log(mode);
 
     if (!name) {
       $(".errMsg").text("請輸入名稱");
@@ -55,6 +58,7 @@ const CHAT = {
     CHAT.socket.emit("login", {
       userid: CHAT.userid,
       username: CHAT.username,
+      mode, //SIGNUP or LOGIN
     });
   },
   sendMsg: function () {
@@ -70,11 +74,16 @@ const CHAT = {
     CHAT.socket.emit("message", data);
   },
   init: function () {
-    this.gerAlluser();
-    this.socket.on("getAlluser", function (data) {
-      console.log(Object.values(data.onlineUsers));
+    this.socket.on("initInfo", function (data) {
+      console.log(data);
       alluser = [...Object.values(data.onlineUsers)];
       $(".onlineCount").text(alluser.length);
+      data.historyMsg.forEach((obj) => {
+        CHAT.updateMsg(
+          { username: obj.name, msg: obj.msg, time: obj.updated },
+          "GETMSG"
+        );
+      });
     });
 
     this.socket.on("login", function (data) {
@@ -91,12 +100,24 @@ const CHAT = {
       console.log(data);
       CHAT.updateMsg(data, "GETMSG");
     });
+    this.socket.on("loginFail", function (data) {
+      // console.log('~~~',data)
+      if (CHAT.userid == data.user.userid) {
+        $(".errMsg").text(data.msg);
+        $("#userName").val("");
+      }
+    });
   },
 };
 
 $(document).ready(function () {
   CHAT.init();
-  $("#btnLogin").click(CHAT.login);
+  $("#btnLogin").click(function () {
+    CHAT.login("LOGIN");
+  });
+  $("#btnLogin_signup").click(function () {
+    CHAT.login("SIGNUP");
+  });
   $("#sendMsg").click(CHAT.sendMsg);
   $("#msgInput").keyup(function (e) {
     if (e.code === "Enter") {

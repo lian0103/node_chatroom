@@ -25,9 +25,15 @@
       <label for="userName" class="block text-xs font-semibold text-gray-600 uppercase">名稱</label>
       <input id="userName" type="text" name="userName" class="block w-full p-3 mt-2 text-gray-700 bg-gray-200 appearance-none focus:outline-none focus:bg-gray-300 focus:shadow-inner" required />
       <p class="errMsg text-red-300"></p>
-      <button id="btnLogin" type="submit" class="w-full py-3 mt-6 font-medium tracking-widest text-white uppercase rounded bg-green-500 shadow-lg focus:outline-none hover:shadow-none">
-        OK
-      </button>
+      <div class="flex justify-between">
+        <button id="btnLogin"  class="w-5/12 py-3 mt-6 font-medium tracking-widest text-white uppercase rounded bg-green-500 shadow-lg focus:outline-none hover:shadow-none">
+          登入
+        </button>
+        <button id="btnLogin_signup" class="w-5/12 py-3 mt-6 font-medium tracking-widest text-white uppercase rounded bg-green-500 shadow-lg focus:outline-none hover:shadow-none">
+          註冊新名
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
