@@ -4,11 +4,11 @@ const CHAT = {
   username: null,
   userid: null,
   socket: io(),
-  scrollToBottom:function(){
+  scrollToBottom: function () {
     let pHight = 25 * $(".msgbox p").length;
     let dHight = 45 * $(".msgbox div").length;
     // console.log(pHight,dHight)
-    $('.msgbox').scrollTop(pHight + dHight);
+    $(".msgbox").scrollTop(pHight + dHight);
   },
   updateMsg: function (data, type) {
     // console.log(data);
@@ -22,19 +22,22 @@ const CHAT = {
         break;
       }
       case "GETMSG": {
+        let regex = /(<([^>]+)>)/gi;
+        let msg = regex.test(data.msg) ? "內容已過濾" : data.msg;
         let isSelf = data.username === CHAT.username;
-        let time = moment(data.time).calendar(); 
+        let time = moment(data.time).calendar();
         let temp = isSelf
           ? `<div class="flex flex-col my-2 space-y-2 text-xs mx-2 order-1 items-end">
                 <div>
                   <span class="text-blue-400 text-sm relative">${time}</span>
-                  <span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white text-lg break-all">${data.msg}</span>
+                  <span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-blue-600 text-white text-lg break-all">${msg}</span>
                 </div>
             </div>`
           : `
             <div class="flex flex-col my-2 space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
                 <div>
-                <span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600 text-lg break-all"><span class="font-bold">${data.username}:</span>${data.msg}</span>
+                <span class="text-lg text-gray-600 font-bold">${data.username}:</span>
+                <span class="px-4 py-2 rounded-lg inline-block bg-gray-300 text-gray-600 text-lg break-all">${msg}</span>
                 <span class="text-gray-400 text-sm relative">${time}</span>
                 </div>
             </div>`;
