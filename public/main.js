@@ -1,5 +1,5 @@
 var alluser = null;
-
+var historyMsg = null;
 const CHAT = {
   username: null,
   userid: null,
@@ -48,20 +48,22 @@ const CHAT = {
     }
     $(".onlineCount").text(data.onlineCount);
   },
-  login: function (mode) {
-    let name = $("#userName").val();
-    // console.log(mode);
+  login: function (mode, nameFromLocal = null) {
+    let name = nameFromLocal ? nameFromLocal : $("#userName").val();
+    // console.log(nameFromLocal);
 
     if (!name) {
       $(".errMsg").text("請輸入名稱");
       return false;
     }
 
-    if (alluser.includes(name)) {
+    if (alluser && alluser.includes(name)) {
       $(".errMsg").text("使用者名稱已被使用");
       return false;
     }
-
+    localStorage.setItem("chatroom-username", name);
+    $("#btnLogout").show();
+    $('#spanUser').html(name);
     CHAT.username = name;
     CHAT.userid = uuid.v4();
     CHAT.socket.emit("login", {
@@ -82,28 +84,40 @@ const CHAT = {
     };
     CHAT.socket.emit("message", data);
   },
+  logout: function () {
+    CHAT.socket.emit("logout", {
+      userid: CHAT.userid,
+      username: CHAT.username,
+    });
+    $("#loginBox").show();
+  },
+  renderMsgs: function () {
+    historyMsg.forEach((obj) => {
+      CHAT.updateMsg(
+        { username: obj.name, msg: obj.msg, time: obj.updated },
+        "GETMSG"
+      );
+    });
+    CHAT.scrollToBottom();
+  },
   init: function () {
     this.socket.on("initInfo", function (data) {
       // console.log(data);
       alluser = [...Object.values(data.onlineUsers)];
       $(".onlineCount").text(alluser.length);
-      data.historyMsg.forEach((obj) => {
-        CHAT.updateMsg(
-          { username: obj.name, msg: obj.msg, time: obj.updated },
-          "GETMSG"
-        );
-      });
-      CHAT.scrollToBottom();
+      historyMsg = data.historyMsg;
+      CHAT.renderMsgs();
     });
 
     this.socket.on("login", function (data) {
-      // console.log("login", data);
+      CHAT.renderMsgs();
       CHAT.updateMsg(data, "LOGIN");
       $("#loginBox").hide();
       CHAT.scrollToBottom();
     });
     this.socket.on("logout", function (data) {
       CHAT.updateMsg(data, "LOGOUT");
+      $('#spanUser').html("");
       CHAT.scrollToBottom();
     });
     this.socket.on("message", function (data) {
@@ -112,12 +126,26 @@ const CHAT = {
       CHAT.scrollToBottom();
     });
     this.socket.on("loginFail", function (data) {
-      // console.log('~~~',data)
+      console.log("~~~", data);
       if (CHAT.userid == data.user.userid) {
         $(".errMsg").text(data.msg);
         $("#userName").val("");
       }
+
+      if (data.msg == "名稱尚未註冊") {
+        localStorage.removeItem("chatroom-username");
+        $("#loginBox").show();
+      }
     });
+
+    let name = localStorage.getItem("chatroom-username");
+    if (name) {
+      setTimeout(function () {
+        CHAT.login("LOGIN", name);
+      }, 500);
+    } else {
+      $("#loginBox").show();
+    }
   },
 };
 
@@ -129,6 +157,10 @@ $(document).ready(function () {
   $("#btnLogin_signup").click(function () {
     CHAT.login("SIGNUP");
   });
+  $("#btnLogout").click(function () {
+    CHAT.logout("SIGNUP");
+  });
+
   $("#sendMsg").click(CHAT.sendMsg);
   $("#msgInput").keyup(function (e) {
     if (e.code === "Enter") {

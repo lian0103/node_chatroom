@@ -120,8 +120,24 @@ mongoose
         }
       });
 
-      socket.on("disconnect", () => {
-        console.log("a user disconnected");
+      socket.on('logout',(payload)=>{
+        console.log("logout payload",payload);
+        let { userid , username } = payload;
+        if (onlineUsers[userid]) {
+          let logoutUser = {
+            userid: userid,
+            username: username,
+          };
+
+          delete onlineUsers[userid];
+          onlineCount--;
+
+          io.emit("logout", { onlineUsers, onlineCount, user: logoutUser });
+        }
+      })
+
+      socket.on("disconnect", (data) => {
+        console.log("a user disconnected",data);
         if (onlineUsers[socket.name]) {
           let logoutUser = {
             userid: socket.name,
