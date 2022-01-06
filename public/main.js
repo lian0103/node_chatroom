@@ -163,8 +163,9 @@ $(document).ready(function () {
 
   $("#sendMsg").click(CHAT.sendMsg);
   $("#msgInput").keyup(function (e) {
-    if (e.code === "Enter") {
+    if (e.code === "Enter" || e.code ==='NumpadEnter') {
       CHAT.sendMsg();
     }
+    e.preventdefault();
   });
 });
